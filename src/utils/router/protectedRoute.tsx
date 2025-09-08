@@ -3,22 +3,37 @@ import { Navigate, useLocation } from "react-router";
 import { LoadingOverlay } from "@mantine/core";
 import { getAccessToken, isTokenExpired } from "../helpers";
 import { useEffect } from "react";
+import { useBreadcrumb } from "../contexts/breadCrumpContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  breadcrumb,
+}: {
+  children: React.ReactNode;
+  breadcrumb?: string;
+}) => {
   const { isAuthenticated, loading, logout } = useAuth();
   const location = useLocation();
   const token = getAccessToken();
+  const { appendBreadcrumb } = useBreadcrumb();
 
   // Check if token exists and is not expired
+  // useEffect(() => {
+  //   if (token && isTokenExpired(token)) {
+  //     logout();
+  //   }
+  // }, [token, logout]);
+
   useEffect(() => {
-    if (token && isTokenExpired(token)) {
-      logout();
+    if (breadcrumb) {
+      // Append the breadcrumb from route config
+      appendBreadcrumb(window.location.pathname, breadcrumb);
     }
-  }, [token, logout]);
+  }, [breadcrumb, appendBreadcrumb]);
 
   if (loading) {
     return <LoadingOverlay visible={true} />;

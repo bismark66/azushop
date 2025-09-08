@@ -1,5 +1,9 @@
+.active {
+  border-bottom: 2px solid #1976d2;
+  color: #1976d2;
+}
 .header {
-  height: 60px;
+  height: 50px;
   padding-left: var(--mantine-spacing-lg);
   padding-right: var(--mantine-spacing-lg);
   /* border-bottom: 1px solid

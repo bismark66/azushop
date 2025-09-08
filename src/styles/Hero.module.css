@@ -1,5 +1,5 @@
 .root {
-  background-color: #11284b;
+  /* background-color: #11284b;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -10,7 +10,7 @@
     ),
     url("../assets/HeroBg.jpg");
   padding-top: calc(var(--mantine-spacing-xl) * 5);
-  padding-bottom: calc(var(--mantine-spacing-xl) * 5);
+  padding-bottom: calc(var(--mantine-spacing-xl) * 5); */
 }
 
 .inner {
@@ -43,7 +43,7 @@
   font-family: Outfit, var(--mantine-font-family);
   font-weight: 700;
   line-height: 1.05;
-  max-width: 500px;
+  max-width: 700px;
   font-size: 80px;
 
   @media (max-width: $mantine-breakpoint-md) {

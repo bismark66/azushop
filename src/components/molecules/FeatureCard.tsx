@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import AppButton from "../atoms/AppButton";
 import { IconArrowUpRight } from "@tabler/icons-react";
+import { useNavigate } from "react-router";
 
 type CardPropType = CardProps & {
   style?: React.CSSProperties;
@@ -16,6 +17,7 @@ type CardPropType = CardProps & {
 };
 
 function FeatureCard({ style, img }: CardPropType) {
+  const navigate = useNavigate();
   return (
     <>
       <Card p="md" radius="sm" style={style}>
@@ -37,6 +39,7 @@ function FeatureCard({ style, img }: CardPropType) {
             ta={"start"}
             style={{ textAlign: "left", justifyContent: "flex-start" }}
             mt={40}
+            onClick={() => navigate("/product")}
           >
             Shop Now
             <IconArrowUpRight size={16} />

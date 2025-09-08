@@ -1,91 +1,158 @@
-import { Anchor, Breadcrumbs, Container, Tabs, Text } from "@mantine/core";
-import { useLocation, useNavigate, Outlet } from "react-router";
 import {
-  IconInvoice,
-  IconLayoutDashboard,
-  IconSettings,
-} from "@tabler/icons-react";
+  Anchor,
+  Breadcrumbs,
+  Center,
+  Container,
+  Text,
+  Title,
+} from "@mantine/core";
+import { useLocation, useNavigate } from "react-router";
 
-const tabs = [
-  {
-    name: "Dashboard",
-    icon: <IconLayoutDashboard size={16} />,
-    path: "/dashboard/me",
-  },
-  {
-    name: "Settings",
-    icon: <IconSettings size={16} />,
-    path: "/dashboard/settings",
-  },
-  {
-    name: "Invoices",
-    icon: <IconInvoice size={16} />,
-    path: "/dashboard/invoices",
-  },
-];
+interface ContentProps {
+  children: React.ReactNode;
+  hasBanner?: boolean;
+  hasBreadcrumbs?: boolean;
+  appendPaths?: string[];
+  bannerText?: string;
+}
 
-export function ContentLayout({ children }: any) {
-  //   const location = useLocation();
-  //   const navigate = useNavigate();
+// Default breadcrumb labels for common paths
+const defaultBreadcrumbLabels: Record<string, string> = {
+  "/": "Home",
+  "/dashboard": "Dashboard",
+  "/dashboard/me": "My Account",
+  "/dashboard/settings": "Settings",
+  "/dashboard/settings/profile": "Profile",
+  "/dashboard/settings/security": "Security",
+  "/dashboard/invoices": "Invoices",
+  "/dashboard/invoices/paid": "Paid",
+  "/dashboard/invoices/pending": "Pending",
+  "/product": "Shop",
+};
 
-  // Get active tab from current path
-  //   const activeTab =
-  //     tabs.find((tab) => location.pathname === tab.path)?.name || "Dashboard";
+// Function to generate breadcrumb items from the current path
+const generateBreadcrumbItems = (
+  currentPath: string,
+  appendPaths: string[] = [],
+  customLabels: Record<string, string> = {}
+) => {
+  const paths = [];
+  const fullPath =
+    currentPath + (appendPaths.length ? "/" + appendPaths.join("/") : "");
 
-  //   const handleTabChange = (value: string | null) => {
-  //     if (!value) return;
-  //     const tab = tabs.find((tab) => tab.name === value);
-  //     if (tab) {
-  //       navigate(tab.path);
-  //     }
-  //   };
+  const segments = fullPath.split("/").filter((segment) => segment !== "");
 
-  const items = tabs.map((tab) => (
-    <Anchor key={tab.name} m={0}>
-      <Text
-        ta="center"
+  let accumulatedPath = "";
+  for (let i = 0; i < segments.length; i++) {
+    accumulatedPath += "/" + segments[i];
+
+    const label =
+      customLabels[accumulatedPath] ||
+      defaultBreadcrumbLabels[accumulatedPath] ||
+      segments[i].charAt(0).toUpperCase() +
+        segments[i].slice(1).replace(/-/g, " ");
+
+    paths.push({
+      path: accumulatedPath,
+      label: label,
+    });
+  }
+
+  return paths;
+};
+
+export function ContentLayout({
+  children,
+  hasBanner = false,
+  hasBreadcrumbs = true,
+  appendPaths = [],
+  bannerText,
+}: ContentProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleTabChange = (path: string) => {
+    navigate(path);
+  };
+
+  const pathBreadcrumbItems = generateBreadcrumbItems(
+    location.pathname,
+    appendPaths,
+    {}
+  );
+  const items = [
+    <Anchor
+      key="/"
+      onClick={() => handleTabChange("/")}
+      style={{
+        cursor: pathBreadcrumbItems.length > 0 ? "pointer" : "default",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+      }}
+      c={pathBreadcrumbItems.length > 0 ? "blue" : "dimmed"}
+    >
+      <Text fw={pathBreadcrumbItems.length === 0 ? 600 : 400} size="sm">
+        Home
+      </Text>
+    </Anchor>,
+    ...pathBreadcrumbItems.map((item, index) => (
+      <Anchor
+        key={item.path}
+        onClick={() =>
+          index < pathBreadcrumbItems.length - 1
+            ? handleTabChange(item.path)
+            : null
+        }
         style={{
+          cursor:
+            index < pathBreadcrumbItems.length - 1 ? "pointer" : "default",
           display: "flex",
           alignItems: "center",
-          gap: "8px",
+          gap: "4px",
         }}
+        c={index < pathBreadcrumbItems.length - 1 ? "blue" : "dimmed"}
       >
-        {tab.icon}
-        {tab.name}
-      </Text>
-    </Anchor>
-  ));
+        <Text
+          fw={index === pathBreadcrumbItems.length - 1 ? 600 : 400}
+          size="sm"
+        >
+          {item.label}
+        </Text>
+      </Anchor>
+    )),
+  ];
 
   return (
     <>
-      <div
-      //   className={classes.header}
-      >
+      <div>
+        {hasBanner && (
+          <Container fluid bg={"blue"} pt={60} pb={60} c={"#fff"}>
+            <Center>
+              <Title order={2}>{bannerText || "New Arrival"}</Title>
+            </Center>
+            <Center>
+              <Text>
+                {bannerText
+                  ? null
+                  : "Shop through our latest selection of Products"}
+              </Text>
+            </Center>
+          </Container>
+        )}
+
+        {hasBreadcrumbs && items.length > 1 && (
+          <Container size="xl" pt="md" pb="md">
+            <Center>
+              <Breadcrumbs separatorMargin="sm">{items}</Breadcrumbs>
+            </Center>
+          </Container>
+        )}
+
         <Container size="xl" bg={"white"} pl={0} pr={0} h={"auto"} p={0} pt={0}>
-          {/* <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            variant="outline"
-            visibleFrom="sm"
-            // classNames={{
-            //   root: classes.tabs,
-            //   list: classes.tabsList,
-            //   tab: classes.tab,
-            // }}
-          >
-            <Tabs.List style={{ padding: 0, margin: 0 }}>{items}</Tabs.List>
-          </Tabs> */}
-          <Breadcrumbs>{items}</Breadcrumbs>
+          <div>{children}</div>
         </Container>
       </div>
-      <Container size="xl">
-        <div
-        // className={classes.body}
-        >
-          {/* <Outlet /> */}
-          {children}
-        </div>
-      </Container>
     </>
   );
 }

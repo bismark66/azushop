@@ -9,6 +9,8 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import routerConfig from "./utils/router/routes.tsx";
 // import { AuthProvider } from "./utils/contexts/AuthenticationContext";
 import ProtectedRoute from "./utils/router/protectedRoute.tsx";
+import { BreadcrumbProvider } from "./utils/contexts/breadCrumpContext.tsx";
+import { AuthProvider } from "./utils/contexts/authenticationContext.tsx";
 
 // const queryClient = new QueryClient({
 //   defaultOptions: {
@@ -52,13 +54,15 @@ function App() {
     // <QueryClientProvider client={queryClient}>
     <MantineProvider theme={AppTheme}>
       <Notifications />
-      {/* <AuthProvider> */}
-      <BrowserRouter>
-        <AppLayout>
-          <Routes>{renderRoutes(routerConfig)}</Routes>
-        </AppLayout>
-      </BrowserRouter>
-      {/* </AuthProvider> */}
+      <AuthProvider>
+        <BreadcrumbProvider>
+          <BrowserRouter>
+            <AppLayout>
+              <Routes>{renderRoutes(routerConfig)}</Routes>
+            </AppLayout>
+          </BrowserRouter>
+        </BreadcrumbProvider>
+      </AuthProvider>
     </MantineProvider>
     // </QueryClientProvider>
   );

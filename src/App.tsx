@@ -11,15 +11,16 @@ import routerConfig from "./utils/router/routes.tsx";
 import ProtectedRoute from "./utils/router/protectedRoute.tsx";
 import { BreadcrumbProvider } from "./utils/contexts/breadCrumpContext.tsx";
 import { AuthProvider } from "./utils/contexts/authenticationContext.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// const queryClient = new QueryClient({
-//   defaultOptions: {
-//     queries: {
-//       retry: 1,
-//       refetchOnWindowFocus: false,
-//     },
-//   },
-// });
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Helper function to render routes recursively
 const renderRoutes = (routes: any[]) => {
@@ -51,20 +52,20 @@ const renderRoutes = (routes: any[]) => {
 
 function App() {
   return (
-    // <QueryClientProvider client={queryClient}>
-    <MantineProvider theme={AppTheme}>
-      <Notifications />
-      <AuthProvider>
-        <BreadcrumbProvider>
-          <BrowserRouter>
-            <AppLayout>
-              <Routes>{renderRoutes(routerConfig)}</Routes>
-            </AppLayout>
-          </BrowserRouter>
-        </BreadcrumbProvider>
-      </AuthProvider>
-    </MantineProvider>
-    // </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <MantineProvider theme={AppTheme}>
+        <Notifications />
+        <AuthProvider>
+          <BreadcrumbProvider>
+            <BrowserRouter>
+              <AppLayout>
+                <Routes>{renderRoutes(routerConfig)}</Routes>
+              </AppLayout>
+            </BrowserRouter>
+          </BreadcrumbProvider>
+        </AuthProvider>
+      </MantineProvider>
+    </QueryClientProvider>
   );
 }
 

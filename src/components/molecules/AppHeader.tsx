@@ -17,12 +17,15 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
+import { useAuth } from "../../utils/contexts/authenticationContext";
+import { Menu, Avatar, Text } from "@mantine/core";
 import AuthModal from "../organisms/AuthModal";
 import classes from "../../styles/AppHeader.module.css";
 import AppButton from "../atoms/AppButton";
 import { NavLink } from "react-router";
 
 function AppHeader() {
+  const { isAuthenticated, user, logout } = useAuth();
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
   // const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
@@ -87,28 +90,86 @@ function AppHeader() {
                 </NavLink>
               </Group>
               <Group visibleFrom="sm">
-                <AppButton
-                  variant="transparent"
-                  c={"#000"}
-                  onClick={() => {
-                    setAuthMode("login");
-                    setAuthModalOpened(true);
-                  }}
-                >
-                  <IconLogin2 style={{ paddingRight: 5 }} />
-                  Log in
-                </AppButton>
-                <AppButton
-                  variant="transparent"
-                  c={"#000"}
-                  onClick={() => {
-                    setAuthMode("register");
-                    setAuthModalOpened(true);
-                  }}
-                >
-                  <IconUser style={{ paddingRight: 5 }} />
-                  Register
-                </AppButton>
+                {isAuthenticated && user ? (
+                  <Menu shadow="md" width={200} position="bottom-end">
+                    <Menu.Target>
+                      <Group style={{ cursor: "pointer" }}>
+                        <Avatar color="blue" radius="xl" size={32} src={null}>
+                          {user.first_name?.[0] || user.email?.[0] || "U"}
+                        </Avatar>
+                        <Text fw={500} size="sm" c="#222">
+                          {user.first_name || user.email}
+                        </Text>
+                      </Group>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {user.isAdmin ? (
+                        <>
+                          {/* <Menu.Item component={NavLink} to="/admin/dashboard">
+                            Dashboard
+                          </Menu.Item> */}
+                          <Menu.Item component={NavLink} to="/admin/products">
+                            Products
+                          </Menu.Item>
+                          <Menu.Item component={NavLink} to="/admin/categories">
+                            Category
+                          </Menu.Item>
+                          <Menu.Item component={NavLink} to="/profile">
+                            Orders
+                          </Menu.Item>
+                          <Menu.Item component={NavLink} to="/admin/users">
+                            Users
+                          </Menu.Item>
+                          <Menu.Item component={NavLink} to="/profile">
+                            Profile
+                          </Menu.Item>
+                          <Menu.Divider />
+                          <Menu.Item color="red" onClick={logout}>
+                            Logout
+                          </Menu.Item>
+                        </>
+                      ) : (
+                        <>
+                          <Menu.Item component={NavLink} to="/orders">
+                            Orders
+                          </Menu.Item>
+                          <Menu.Item component={NavLink} to="/profile">
+                            Profile
+                          </Menu.Item>
+                          <Menu.Divider />
+                          <Menu.Item color="red" onClick={logout}>
+                            Logout
+                          </Menu.Item>
+                        </>
+                      )}
+                    </Menu.Dropdown>
+                  </Menu>
+                ) : (
+                  <>
+                    <AppButton
+                      variant="transparent"
+                      c={"#000"}
+                      onClick={() => {
+                        setAuthMode("login");
+                        setAuthModalOpened(true);
+                      }}
+                    >
+                      <IconLogin2 style={{ paddingRight: 5 }} />
+                      Log in
+                    </AppButton>
+                    <AppButton
+                      variant="transparent"
+                      c={"#000"}
+                      onClick={() => {
+                        setAuthMode("register");
+                        setAuthModalOpened(true);
+                      }}
+                    >
+                      <IconUser style={{ paddingRight: 5 }} />
+                      Register
+                    </AppButton>
+                  </>
+                )}
               </Group>
               <Burger
                 opened={drawerOpened}

@@ -17,7 +17,7 @@ import {
 import { useNavigate } from "react-router";
 
 type CardPropType = {
-  id: number;
+  id: string | number;
   style?: React.CSSProperties;
   img: React.ReactNode;
   brand: string;

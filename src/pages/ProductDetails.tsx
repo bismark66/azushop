@@ -17,15 +17,22 @@ import AppButton from "../components/atoms/AppButton";
 import { ContentLayout } from "../components/templates/ContentLayout";
 import ProductCard from "../components/molecules/ProductCard";
 import { useParams } from "react-router";
-import { productsData } from "../data/productsData";
+import { useGetProducts } from "../http/product.mutations";
 import { useBreadcrumb } from "../utils/contexts/breadCrumpContext";
 import { useEffect } from "react";
+import { useGetProductById } from "../http/product.mutations";
 
 function ProductDetails() {
   const { id } = useParams();
-  const productId = Number(id);
-  const product = productsData.find((p) => p.id === productId);
-  const relatedProducts = productsData.filter((p) => p.id !== productId);
+  const { data: product, isLoading, isError } = useGetProductById(id ?? "");
+  const { data: products = [] } = useGetProducts();
+  const relatedProducts = products.filter(
+    (p) =>
+      p._id !== id &&
+      (product?.category?.name
+        ? p.category?.name === product.category.name
+        : true)
+  );
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("related");
   const [rating, setRating] = useState("");
@@ -34,11 +41,20 @@ function ProductDetails() {
 
   useEffect(() => {
     if (product) {
-      appendBreadcrumb(`/product/${product.id}`, product.title);
+      appendBreadcrumb(`/product/${product._id}`, product.name);
     }
   }, [appendBreadcrumb, product]);
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <ContentLayout hasBreadcrumbs>
+        <Container size="xl" pt={32} pb={32}>
+          <Title order={3}>Loading product...</Title>
+        </Container>
+      </ContentLayout>
+    );
+  }
+  if (isError || !product) {
     return (
       <ContentLayout hasBreadcrumbs>
         <Container size="xl" pt={32} pb={32}>
@@ -56,7 +72,7 @@ function ProductDetails() {
             <Card radius="md" p={32} bg="#F9FBFC" style={{ minHeight: 400 }}>
               <Image
                 src={product.image}
-                alt={product.title}
+                alt={product.name}
                 radius="md"
                 fit="contain"
                 h={316}
@@ -65,7 +81,7 @@ function ProductDetails() {
           </Grid.Col>
           <Grid.Col span={6}>
             <Title order={3} mb={8}>
-              {product.title}
+              {product.name}
             </Title>
             <Text fw={600} size="md" mb={4}>
               Brand: {product.brand}
@@ -121,13 +137,14 @@ function ProductDetails() {
               <Tabs.Panel value="related" pt={16}>
                 <Grid>
                   {relatedProducts.map((prod) => (
-                    <Grid.Col key={prod.id} span={4}>
+                    <Grid.Col key={prod._id} span={4}>
                       <ProductCard
                         img={prod.image}
-                        title={prod.title}
+                        title={prod.name}
                         description={prod.description}
                         price={prod.price}
                         brand={prod.brand}
+                        id={prod._id}
                       />
                     </Grid.Col>
                   ))}

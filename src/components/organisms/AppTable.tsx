@@ -21,17 +21,11 @@ export interface AppTableProps {
 export default function AppTable({
   columns,
   data,
-  //   minWidth = 700,
   headerBg = "#F9FBFC",
   rowBg = "#fff",
-}: //   style = {},
-AppTableProps) {
+}: AppTableProps) {
   return (
-    // <Card radius="md" p={0} style={{ minWidth, ...style }}>
-    <Table
-      //  withColumnBorders
-      highlightOnHover
-    >
+    <Table highlightOnHover>
       <Table.Thead style={{ background: headerBg }}>
         <Table.Tr>
           {columns.map((col) => (
@@ -61,6 +55,5 @@ AppTableProps) {
         ))}
       </Table.Tbody>
     </Table>
-    // </Card>
   );
 }

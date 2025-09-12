@@ -11,33 +11,33 @@ import {
 import { ContentLayout } from "../components/templates/ContentLayout";
 import CategoryFilters from "../components/organisms/CategoryFilters";
 import ProductCard from "../components/molecules/ProductCard";
+import { useGetProducts, useGetAllCategories } from "../http/product.mutations";
+import type { ProductResponse, CategoryResponse } from "../types/product.types";
 
-import { productsData } from "../data/productsData";
-
-const categories = [
-  {
-    label: "Product Categories",
-    initiallyOpened: true,
-    links: [
-      { label: "Laptops", value: "Laptops" },
-      { label: "Phones", value: "Phones" },
-      { label: "Cameras", value: "Cameras" },
-      { label: "Watches", value: "Watches" },
-      { label: "Computers", value: "Computers" },
-    ],
-  },
-];
+function getCategoryFilterData(categories: CategoryResponse[] = []) {
+  return [
+    {
+      label: "Product Categories",
+      initiallyOpened: true,
+      links: categories.map((cat) => ({ label: cat.name, value: cat.name })),
+    },
+  ];
+}
 
 function Products() {
+  const { data: categoryData = [] } = useGetAllCategories();
   //   const { appendBreadcrumb } = useBreadcrumb();
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState(productsData);
+  const { data: products = [], isLoading, isError } = useGetProducts();
+  const [filteredProducts, setFilteredProducts] = useState<ProductResponse[]>(
+    []
+  );
   const [price, setPrice] = useState("");
 
   useEffect(() => {
     // Filter products based on selected brands and categories
-    let filtered = productsData;
+    let filtered = products;
 
     if (selectedBrands.length > 0) {
       filtered = filtered.filter((product) =>
@@ -47,12 +47,21 @@ function Products() {
 
     if (selectedCategories.length > 0) {
       filtered = filtered.filter((product) =>
-        selectedCategories.includes(product.category)
+        selectedCategories.includes(
+          typeof product.category === "string"
+            ? product.category
+            : product.category?.name
+        )
       );
     }
 
-    setFilteredProducts(filtered);
-  }, [selectedBrands, selectedCategories]);
+    // Only update state if filteredProducts actually changed
+    setFilteredProducts((prev) => {
+      const prevIds = prev.map((p) => p._id).join(",");
+      const newIds = filtered.map((p) => p._id).join(",");
+      return prevIds !== newIds ? filtered : prev;
+    });
+  }, [products, selectedBrands, selectedCategories]);
 
   const handleBrandChange = (brand: string) => {
     setSelectedBrands((prev) =>
@@ -68,65 +77,27 @@ function Products() {
     );
   };
 
-  // Brands data with controlled checkboxes
+  // Dynamically generate brand filter data from products
+  const uniqueBrands = Array.from(new Set(products.map((p) => p.brand))).filter(
+    Boolean
+  );
   const brands = [
     {
       label: "Brands",
       initiallyOpened: true,
-      links: [
-        {
-          label: (
-            <Checkbox
-              checked={selectedBrands.includes("Apple")}
-              onChange={() => handleBrandChange("Apple")}
-              color="lime.4"
-              iconColor="dark.8"
-              size="sm"
-              label="Apple"
-            />
-          ),
-          value: "Apple",
-        },
-        {
-          label: (
-            <Checkbox
-              checked={selectedBrands.includes("Samsung")}
-              onChange={() => handleBrandChange("Samsung")}
-              color="lime.4"
-              iconColor="dark.8"
-              size="sm"
-              label="Samsung"
-            />
-          ),
-          value: "Samsung",
-        },
-        {
-          label: (
-            <Checkbox
-              checked={selectedBrands.includes("Lenovo")}
-              onChange={() => handleBrandChange("Lenovo")}
-              color="lime.4"
-              iconColor="dark.8"
-              size="sm"
-              label="Lenovo"
-            />
-          ),
-          value: "Lenovo",
-        },
-        {
-          label: (
-            <Checkbox
-              checked={selectedBrands.includes("Sony")}
-              onChange={() => handleBrandChange("Sony")}
-              color="lime.4"
-              iconColor="dark.8"
-              size="sm"
-              label="Sony"
-            />
-          ),
-          value: "Sony",
-        },
-      ],
+      links: uniqueBrands.map((brand) => ({
+        label: (
+          <Checkbox
+            checked={selectedBrands.includes(brand)}
+            onChange={() => handleBrandChange(brand)}
+            color="lime.4"
+            iconColor="dark.8"
+            size="sm"
+            label={brand}
+          />
+        ),
+        value: brand,
+      })),
     },
   ];
 
@@ -139,7 +110,7 @@ function Products() {
               Shop By
             </Title>
             <CategoryFilters
-              data={categories}
+              data={getCategoryFilterData(categoryData)}
               onCategoryChange={handleCategoryChange}
               selectedCategories={selectedCategories}
             />
@@ -191,7 +162,19 @@ function Products() {
                 : ""}
             </Title>
 
-            {filteredProducts.length === 0 ? (
+            {isLoading ? (
+              <Center style={{ height: "300px" }}>
+                <Text size="lg" color="dimmed">
+                  Loading products...
+                </Text>
+              </Center>
+            ) : isError ? (
+              <Center style={{ height: "300px" }}>
+                <Text size="lg" color="red">
+                  Failed to load products.
+                </Text>
+              </Center>
+            ) : filteredProducts.length === 0 ? (
               <Center style={{ height: "300px" }}>
                 <Text size="lg" color="dimmed">
                   No products match your filters. Try adjusting your selection.
@@ -207,7 +190,7 @@ function Products() {
               >
                 {filteredProducts.map((product) => (
                   <Grid.Col
-                    key={product.id}
+                    key={product._id}
                     span={4}
                     style={{
                       display: "flex",
@@ -216,11 +199,11 @@ function Products() {
                   >
                     <ProductCard
                       img={product.image}
-                      title={product.title}
+                      title={product.name}
                       description={product.description}
                       price={product.price}
                       brand={product.brand}
-                      id={product.id}
+                      id={product._id}
                     />
                   </Grid.Col>
                 ))}

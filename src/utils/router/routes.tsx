@@ -1,4 +1,3 @@
-import React from "react";
 import Home from "../../pages/Home";
 import Products from "../../pages/Products";
 import ProductDetails from "../../pages/ProductDetails";
@@ -7,8 +6,26 @@ import Favourite from "../../pages/Favourite";
 import Checkout from "../../pages/Checkout";
 import MyOrders from "../../pages/MyOrders";
 import OrderDetails from "../../pages/OrderDetails";
+import AdminProducts from "../../pages/AdminProducts";
+import UpdateProduct from "../../pages/UpdateProduct";
+import Category from "../../pages/Category";
+import Profile from "../../pages/Profile";
 
 const routerConfig = [
+  {
+    path: "/admin/products",
+    element: <AdminProducts />,
+    exact: true,
+    protected: true,
+    breadcrump: "Admin Products",
+  },
+  {
+    path: "/admin/products/:id/edit",
+    element: <UpdateProduct />,
+    exact: true,
+    protected: true,
+    breadcrump: "Update Product",
+  },
   {
     path: "/",
     element: <Home />,
@@ -63,6 +80,20 @@ const routerConfig = [
     exact: true,
     protected: false,
     breadcrump: "My Orders",
+  },
+  {
+    path: "/admin/categories",
+    element: <Category />,
+    exact: true,
+    protected: false,
+    breadcrump: "Categories",
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+    exact: true,
+    protected: true,
+    breadcrump: "Profile",
   },
 ];
 

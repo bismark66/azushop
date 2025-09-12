@@ -16,7 +16,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children: React.ReactNode;
   breadcrumb?: string;
 }) => {
-  const { isAuthenticated, loading, logout } = useAuth();
+  const { isAuthenticated, loading, logout, user } = useAuth();
   const location = useLocation();
   const token = getAccessToken();
   const { appendBreadcrumb } = useBreadcrumb();
@@ -39,9 +39,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <LoadingOverlay visible={true} />;
   }
 
+  // Restrict admin routes to admin users only
+  if (window.location.pathname.includes("admin")) {
+    if (!user?.isAdmin) {
+      return <Navigate to="/" replace />;
+    }
+  }
+
   if (!isAuthenticated || !token) {
     // Redirect to login page with return url
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

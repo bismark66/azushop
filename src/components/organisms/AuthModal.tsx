@@ -8,32 +8,59 @@ import {
   Box,
 } from "@mantine/core";
 import { useState } from "react";
+import { useLogin, useRegister } from "../../http/mutations";
+import { useAuth } from "../../utils/contexts/authenticationContext";
+import type { AuthResponse } from "../../types/auth.types";
 
 interface AuthModalProps {
   opened: boolean;
   onClose: () => void;
   mode: "login" | "register";
 }
-
 export default function AuthModal({ opened, onClose, mode }: AuthModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string>("");
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
+  const { login: authLogin } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email || !password) {
       setError("Please enter your email and password.");
       return;
     }
-    // TODO: Add login logic here
-    onClose();
+    console.log(email, password);
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: (data: AuthResponse) => {
+          if (data && data.accessToken && data.user) {
+            // Map backend user to local User type
+            const mappedUser = {
+              id: Number(data.user._id),
+              first_name: data.user.username || "",
+              last_name: "",
+              contact_number: "",
+              email: data.user.email,
+              isAdmin: data.user.isAdmin,
+            };
+            authLogin(data.accessToken, "", mappedUser);
+          }
+          onClose();
+        },
+        onError: (err: unknown) => {
+          setError(err instanceof Error ? err.message : "Login failed");
+        },
+      }
+    );
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!fullName || !email || !password || !confirmPassword) {
@@ -44,8 +71,28 @@ export default function AuthModal({ opened, onClose, mode }: AuthModalProps) {
       setError("Passwords do not match.");
       return;
     }
-    // TODO: Add registration logic here
-    onClose();
+    registerMutation.mutate(
+      { name: fullName, email, password },
+      {
+        onSuccess: (data: AuthResponse) => {
+          if (data && data.accessToken && data.user) {
+            const mappedUser = {
+              id: data.user._id,
+              first_name: data.user.username || "",
+              last_name: "",
+              contact_number: "",
+              email: data.user.email,
+              isAdmin: data.user.isAdmin,
+            };
+            authLogin(data.accessToken, "", mappedUser);
+          }
+          onClose();
+        },
+        onError: (err: unknown) => {
+          setError(err instanceof Error ? err.message : "Registration failed");
+        },
+      }
+    );
   };
 
   return (
@@ -97,6 +144,11 @@ export default function AuthModal({ opened, onClose, mode }: AuthModalProps) {
           {error && (
             <Text color="red" size="sm" mb={8} ta="center">
               {error}
+            </Text>
+          )}
+          {(loginMutation.isPending || registerMutation.isPending) && (
+            <Text color="blue" size="sm" mb={8} ta="center">
+              Processing...
             </Text>
           )}
           {mode === "login" ? (

@@ -6,7 +6,7 @@ import {
   setRefreshToken,
   clearTokens,
 } from "../helpers";
-import type { User } from "../../types";
+import type { User } from "../../types/auth.types";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -28,10 +28,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     // Check if user is logged in on app load
     const token = getAccessToken();
-    const refreshToken = getRefreshToken();
     const userData = localStorage.getItem("user");
 
-    if (token && refreshToken && userData) {
+    if (token && userData) {
       setIsAuthenticated(true);
       setUser(JSON.parse(userData));
     }

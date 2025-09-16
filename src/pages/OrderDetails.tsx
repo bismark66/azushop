@@ -7,6 +7,7 @@ import {
   Image,
   Divider,
   Box,
+  Button,
 } from "@mantine/core";
 import { ContentLayout } from "../components/templates/ContentLayout";
 import { productsData } from "../data/productsData";
@@ -62,196 +63,211 @@ function OrderDetails() {
         <Text c="blue.7" fw={600} style={{ cursor: "pointer" }} mb={24}>
           &lt; Back
         </Text>
-        <Group mb={24} justify="space-between">
-          <Text fw={600} size="lg">
-            My orders
-          </Text>
-        </Group>
-        <Grid gutter={32}>
-          {/* Orders Table */}
-          <Grid.Col span={8}>
-            <Card radius="md" p={0} bg="#fff" style={{ minHeight: 300 }}>
-              <Divider mb={0} />
-              <Box p={24} pt={0}>
-                <Grid gutter={0} mb={8} style={{ background: "#F9FBFC" }}>
-                  <Grid.Col span={2}>
-                    <Text fw={600} size="sm">
-                      Image
+        <Container size={"xl"} bg={"#F9FBFC"} p={20}>
+          <Group mb={24} justify="space-between">
+            <Text fw={600} size="lg">
+              Order Details
+            </Text>
+          </Group>
+          <Grid gutter={32}>
+            <Grid.Col span={12}>
+              <Grid gutter={0}>
+                <Grid.Col span={8}>
+                  <Box p={24} pt={0}>
+                    <Grid
+                      gutter={0}
+                      mb={8}
+                      p={20}
+                      style={{ background: "#F9FBFC" }}
+                    >
+                      <Grid.Col span={2}>
+                        <Text fw={600} size="sm">
+                          Image
+                        </Text>
+                      </Grid.Col>
+                      <Grid.Col span={4}>
+                        <Text fw={600} size="sm">
+                          Product
+                        </Text>
+                      </Grid.Col>
+                      <Grid.Col span={2}>
+                        <Text fw={600} size="sm">
+                          Quantity
+                        </Text>
+                      </Grid.Col>
+                      <Grid.Col span={2}>
+                        <Text fw={600} size="sm">
+                          Unit Price
+                        </Text>
+                      </Grid.Col>
+                      <Grid.Col span={2}>
+                        <Text fw={600} size="sm">
+                          Total
+                        </Text>
+                      </Grid.Col>
+                    </Grid>
+                    {order.items.map((item, idx) => (
+                      <Grid
+                        gutter={0}
+                        align="center"
+                        key={idx}
+                        style={{
+                          borderBottom: "1px solid #F1F3F5",
+                          padding: "12px 0",
+                        }}
+                      >
+                        <Grid.Col span={2}>
+                          <Image
+                            src={item.image}
+                            h={40}
+                            w={60}
+                            fit="contain"
+                            radius="md"
+                            bg="#F9FBFC"
+                            alt={item.product}
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={4}>
+                          <Text size="sm">{item.product}</Text>
+                        </Grid.Col>
+                        <Grid.Col span={2}>
+                          <Text size="sm">{item.quantity}</Text>
+                        </Grid.Col>
+                        <Grid.Col span={2}>
+                          <Text size="sm">${item.unitPrice.toFixed(2)}</Text>
+                        </Grid.Col>
+                        <Grid.Col span={2}>
+                          <Text size="sm">${item.total.toFixed(2)}</Text>
+                        </Grid.Col>
+                      </Grid>
+                    ))}
+                  </Box>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Card radius="md" p={24} bg="#fff" style={{ minHeight: 300 }}>
+                    <Text fw={600} size="md" mb={16}>
+                      Shipping
                     </Text>
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <Text fw={600} size="sm">
-                      Product
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={500}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Order:
+                      </Text>
+                      <Text size="sm">{order.id}</Text>
+                    </Group>
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={500}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Name:
+                      </Text>
+                      <Text size="sm">{order.name}</Text>
+                    </Group>
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={500}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Email:
+                      </Text>
+                      <Text size="sm">{order.email}</Text>
+                    </Group>
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={500}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Address:
+                      </Text>
+                      <Text size="sm">{order.address}</Text>
+                    </Group>
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={500}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Method:
+                      </Text>
+                      <Text size="sm">{order.method}</Text>
+                    </Group>
+                    <Divider my={16} />
+                    <Text fw={600} size="md" mb={8}>
+                      Order Summary
                     </Text>
-                  </Grid.Col>
-                  <Grid.Col span={2}>
-                    <Text fw={600} size="sm">
-                      Quantity
-                    </Text>
-                  </Grid.Col>
-                  <Grid.Col span={2}>
-                    <Text fw={600} size="sm">
-                      Unit Price
-                    </Text>
-                  </Grid.Col>
-                  <Grid.Col span={2}>
-                    <Text fw={600} size="sm">
-                      Total
-                    </Text>
-                  </Grid.Col>
-                </Grid>
-                {order.items.map((item, idx) => (
-                  <Grid
-                    gutter={0}
-                    align="center"
-                    key={idx}
-                    style={{
-                      borderBottom: "1px solid #F1F3F5",
-                      padding: "12px 0",
-                    }}
-                  >
-                    <Grid.Col span={2}>
-                      <Image
-                        src={item.image}
-                        h={40}
-                        w={60}
-                        fit="contain"
-                        radius="md"
-                        bg="#F9FBFC"
-                        alt={item.product}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={4}>
-                      <Text size="sm">{item.product}</Text>
-                    </Grid.Col>
-                    <Grid.Col span={2}>
-                      <Text size="sm">{item.quantity}</Text>
-                    </Grid.Col>
-                    <Grid.Col span={2}>
-                      <Text size="sm">${item.unitPrice.toFixed(2)}</Text>
-                    </Grid.Col>
-                    <Grid.Col span={2}>
-                      <Text size="sm">${item.total.toFixed(2)}</Text>
-                    </Grid.Col>
-                  </Grid>
-                ))}
-              </Box>
-            </Card>
-          </Grid.Col>
-          {/* Shipping & Summary */}
-          <Grid.Col span={4}>
-            <Card radius="md" p={24} bg="#fff" style={{ minHeight: 300 }}>
-              <Text fw={600} size="md" mb={16}>
-                Shipping
-              </Text>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={500}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Order:
-                </Text>
-                <Text size="sm">{order.id}</Text>
-              </Group>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={500}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Name:
-                </Text>
-                <Text size="sm">{order.name}</Text>
-              </Group>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={500}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Email:
-                </Text>
-                <Text size="sm">{order.email}</Text>
-              </Group>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={500}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Order:
-                </Text>
-                <Text size="sm">{order.address}</Text>
-              </Group>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={500}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Method:
-                </Text>
-                <Text size="sm">{order.method}</Text>
-              </Group>
-              <Divider my={16} />
-              <Text fw={600} size="md" mb={8}>
-                Order Summary
-              </Text>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={500}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Items:
-                </Text>
-                <Text size="sm">${itemsTotal.toFixed(2)}</Text>
-              </Group>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={500}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Shipping:
-                </Text>
-                <Text size="sm">${order.shipping.toFixed(2)}</Text>
-              </Group>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={500}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Tax:
-                </Text>
-                <Text size="sm">${order.tax.toFixed(2)}</Text>
-              </Group>
-              <Group mb={8} gap={4}>
-                <Text
-                  fw={700}
-                  size="sm"
-                  color="dimmed"
-                  style={{ minWidth: 80 }}
-                >
-                  Total:
-                </Text>
-                <Text fw={700} size="sm">
-                  ${total.toFixed(2)}
-                </Text>
-              </Group>
-            </Card>
-          </Grid.Col>
-        </Grid>
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={500}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Items:
+                      </Text>
+                      <Text size="sm">${itemsTotal.toFixed(2)}</Text>
+                    </Group>
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={500}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Shipping:
+                      </Text>
+                      <Text size="sm">${order.shipping.toFixed(2)}</Text>
+                    </Group>
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={500}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Tax:
+                      </Text>
+                      <Text size="sm">${order.tax.toFixed(2)}</Text>
+                    </Group>
+                    <Group mb={8} gap={4}>
+                      <Text
+                        fw={700}
+                        size="sm"
+                        color="dimmed"
+                        style={{ minWidth: 80 }}
+                      >
+                        Total:
+                      </Text>
+                      <Text fw={700} size="sm">
+                        ${total.toFixed(2)}
+                      </Text>
+                    </Group>
+                    <Button
+                      color="#015B9A"
+                      fullWidth
+                      radius="md"
+                      size="md"
+                      mt={16}
+                    >
+                      Mark as delivered
+                    </Button>
+                  </Card>
+                </Grid.Col>
+              </Grid>
+            </Grid.Col>
+          </Grid>
+        </Container>
       </Container>
     </ContentLayout>
   );

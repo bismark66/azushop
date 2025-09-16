@@ -14,8 +14,13 @@ import { useEffect } from "react";
 import { getUser } from "../utils/helpers";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { Link } from "react-router";
+import { useUpdateProfile } from "../http/mutations";
+import type { User } from "../types/auth.types";
+type UpdatePayload = Partial<User> & { password?: string };
 
 export default function Profile() {
+  const updateProfileMutation = useUpdateProfile();
+  const [updateStatus, setUpdateStatus] = useState<string>("");
   // Mock orders data
   const orders = [
     {
@@ -116,6 +121,26 @@ export default function Profile() {
     }
   }, []);
 
+  const handleUpdateProfile = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setUpdateStatus("");
+    // Only send changed fields
+    const payload: UpdatePayload = {};
+    if (name) payload.first_name = name;
+    if (email) payload.email = email;
+    if (password && password === confirmPassword) payload.password = password;
+    try {
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined) formData.append(key, value as string);
+      });
+      await updateProfileMutation.mutateAsync(formData);
+      setUpdateStatus("Profile updated successfully!");
+    } catch (err: unknown) {
+      setUpdateStatus((err as Error)?.message || "Failed to update profile");
+    }
+  };
+
   return (
     <div>
       <Container size="xl" pt={32} pb={32}>
@@ -151,50 +176,62 @@ export default function Profile() {
             <Tabs.Tab value="orders">My orders</Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="profile">
-            <Stack gap={16} mt={32}>
-              <Input
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.currentTarget.value)}
-                size="lg"
-                radius="md"
-                style={{ background: "#F4F7FB" }}
-              />
-              <Input
-                placeholder="johndoe@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.currentTarget.value)}
-                size="lg"
-                radius="md"
-                style={{ background: "#F4F7FB" }}
-              />
-              <Input
-                placeholder="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.currentTarget.value)}
-                size="lg"
-                radius="md"
-                style={{ background: "#F4F7FB" }}
-              />
-              <Input
-                placeholder="Confirm password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.currentTarget.value)}
-                size="lg"
-                radius="md"
-                style={{ background: "#F4F7FB" }}
-              />
-              <Button
-                color="blue"
-                radius="md"
-                size="md"
-                style={{ width: 120, alignSelf: "flex-start" }}
-              >
-                Update
-              </Button>
-            </Stack>
+            <form onSubmit={handleUpdateProfile}>
+              <Stack gap={16} mt={32}>
+                <Input
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.currentTarget.value)}
+                  size="lg"
+                  radius="md"
+                  style={{ background: "#F4F7FB" }}
+                />
+                <Input
+                  placeholder="johndoe@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.currentTarget.value)}
+                  size="lg"
+                  radius="md"
+                  style={{ background: "#F4F7FB" }}
+                />
+                <Input
+                  placeholder="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  size="lg"
+                  radius="md"
+                  style={{ background: "#F4F7FB" }}
+                />
+                <Input
+                  placeholder="Confirm password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.currentTarget.value)}
+                  size="lg"
+                  radius="md"
+                  style={{ background: "#F4F7FB" }}
+                />
+                <Button
+                  type="submit"
+                  color="blue"
+                  radius="md"
+                  size="md"
+                  style={{ width: 120, alignSelf: "flex-start" }}
+                  loading={updateProfileMutation.isPending}
+                >
+                  Update
+                </Button>
+                {updateStatus && (
+                  <Text
+                    size="sm"
+                    color={updateStatus.includes("success") ? "green" : "red"}
+                  >
+                    {updateStatus}
+                  </Text>
+                )}
+              </Stack>
+            </form>
           </Tabs.Panel>
           <Tabs.Panel value="orders">
             <div style={{ marginTop: 32 }}>

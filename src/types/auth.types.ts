@@ -7,7 +7,7 @@ export interface RegisterCredentials extends LoginCredentials {
   name: string;
 }
 export interface User {
-  id: number;
+  _id: string;
   first_name: string;
   last_name: string;
   contact_number: string;

@@ -15,6 +15,9 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../../utils/contexts/authenticationContext";
+import { useWishlist } from "../../utils/contexts/wishlistContext";
+import { useCart } from "../../utils/contexts/cartContext";
 
 type CardPropType = {
   id: string | number;
@@ -40,6 +43,32 @@ function ProductCard({
   onDelete,
 }: CardPropType) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isFavorite, addToWishlist, removeFromWishlist } = useWishlist();
+  const { addToCart } = useCart();
+
+  const handleToggleFavorite = (event: React.MouseEvent) => {
+    event.preventDefault();
+    if (isFavorite(id)) {
+      removeFromWishlist(id);
+    } else {
+      addToWishlist(id);
+    }
+  };
+
+  const handleAddToCart = (event: React.MouseEvent) => {
+    event.preventDefault();
+    addToCart({
+      id,
+      quantity: 1,
+      img,
+      brand,
+      title,
+      description,
+      price,
+    });
+  };
+
   return (
     <>
       <Card p="md" radius="sm" style={style} bg={"#F9FBFC"}>
@@ -75,19 +104,31 @@ function ProductCard({
           <Group>
             <ActionIcon
               variant="light"
-              onClick={(event) => event.preventDefault()}
+              onClick={handleAddToCart}
+              aria-label="Add to cart"
             >
               <IconShoppingCart
                 style={{ width: "70%", height: "70%" }}
                 stroke={1.5}
               />
             </ActionIcon>
-            <ActionIcon
-              variant="light"
-              onClick={(event) => event.preventDefault()}
-            >
-              <IconHeart style={{ width: "70%", height: "70%" }} stroke={1.5} />
-            </ActionIcon>
+            {/* Wishlist/Favorite only for non-admin users */}
+            {user && !user.isAdmin && (
+              <ActionIcon
+                variant={isFavorite(id) ? "filled" : "light"}
+                color={isFavorite(id) ? "red" : undefined}
+                onClick={handleToggleFavorite}
+                aria-label={
+                  isFavorite(id) ? "Remove from wishlist" : "Add to wishlist"
+                }
+              >
+                <IconHeart
+                  style={{ width: "70%", height: "70%" }}
+                  stroke={1.5}
+                  fill={isFavorite(id) ? "red" : "none"}
+                />
+              </ActionIcon>
+            )}
             <ActionIcon
               variant="light"
               onClick={() => navigate(`/product/${id}`)}

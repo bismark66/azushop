@@ -12,31 +12,22 @@ import {
 import { useState } from "react";
 import { ContentLayout } from "../components/templates/ContentLayout";
 import AppButton from "../components/atoms/AppButton";
-import { productsData } from "../data/productsData";
-
-// For demo, cart contains one product
-const initialCart = [
-  {
-    ...productsData.find((p) => p.id === 9),
-    quantity: 1,
-  },
-];
+import { useCart } from "../utils/contexts/cartContext";
+import { useNavigate } from "react-router";
 
 function Cart() {
-  const [cart, setCart] = useState(initialCart);
+  const { cart, updateQuantity, removeFromCart } = useCart();
+  const navigate = useNavigate();
 
-  const handleQuantityChange = (idx: number, value: number | string) => {
-    setCart((prev) =>
-      prev.map((item, i) =>
-        i === idx
-          ? { ...item, quantity: typeof value === "number" ? value : 1 }
-          : item
-      )
-    );
+  const handleQuantityChange = (
+    id: string | number,
+    value: number | string
+  ) => {
+    updateQuantity(id, typeof value === "number" ? value : 1);
   };
 
-  const handleRemove = (idx: number) => {
-    setCart((prev) => prev.filter((_, i) => i !== idx));
+  const handleRemove = (id: string | number) => {
+    removeFromCart(id);
   };
 
   const total = cart.reduce(
@@ -79,7 +70,7 @@ function Cart() {
               <Text color="dimmed">Your cart is empty.</Text>
             </Center>
           ) : (
-            cart.map((item, idx) => (
+            cart.map((item) => (
               <Grid
                 gutter={0}
                 align="center"
@@ -89,7 +80,7 @@ function Cart() {
                 <Grid.Col span={5}>
                   <Group align="center" gap={16}>
                     <Image
-                      src={item.image}
+                      src={item.img || item.image}
                       alt={item.title}
                       h={60}
                       w={80}
@@ -108,7 +99,7 @@ function Cart() {
                         color="red.6"
                         size="sm"
                         mt={4}
-                        onClick={() => handleRemove(idx)}
+                        onClick={() => handleRemove(item.id)}
                         style={{ display: "inline-block" }}
                       >
                         Remove
@@ -128,7 +119,7 @@ function Cart() {
                     max={10}
                     size="md"
                     style={{ width: 80 }}
-                    onChange={(value) => handleQuantityChange(idx, value)}
+                    onChange={(value) => handleQuantityChange(item.id, value)}
                   />
                 </Grid.Col>
                 <Grid.Col span={3}>
@@ -153,6 +144,7 @@ function Cart() {
           color="blue.7"
           style={{ minWidth: 280, margin: "0 auto", display: "block" }}
           fullWidth={false}
+          onClick={() => navigate("/checkout")}
         >
           Proceed to checkout
         </AppButton>

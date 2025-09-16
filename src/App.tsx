@@ -12,6 +12,8 @@ import ProtectedRoute from "./utils/router/protectedRoute.tsx";
 import { BreadcrumbProvider } from "./utils/contexts/breadCrumpContext.tsx";
 import { AuthProvider } from "./utils/contexts/authenticationContext.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WishlistProvider } from "./utils/contexts/wishlistContext";
+import { CartProvider } from "./utils/contexts/cartContext.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,13 +58,17 @@ function App() {
       <MantineProvider theme={AppTheme}>
         <Notifications />
         <AuthProvider>
-          <BreadcrumbProvider>
-            <BrowserRouter>
-              <AppLayout>
-                <Routes>{renderRoutes(routerConfig)}</Routes>
-              </AppLayout>
-            </BrowserRouter>
-          </BreadcrumbProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <BreadcrumbProvider>
+                <BrowserRouter>
+                  <AppLayout>
+                    <Routes>{renderRoutes(routerConfig)}</Routes>
+                  </AppLayout>
+                </BrowserRouter>
+              </BreadcrumbProvider>
+            </CartProvider>
+          </WishlistProvider>
         </AuthProvider>
       </MantineProvider>
     </QueryClientProvider>

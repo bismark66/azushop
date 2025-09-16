@@ -54,3 +54,17 @@ export function useAddProduct() {
     },
   });
 }
+
+
+export function useUpdateProfile() {
+  return useMutation({
+    mutationFn: async (data: FormData) => {
+      const res = await authorizedFetch(`${API_URL}/users/profile`, {
+        method: "PUT",
+        body: data, // FormData
+      });
+      if (!res.ok) throw new Error("Update profile failed");
+      return await res.json();
+    },
+  });
+}

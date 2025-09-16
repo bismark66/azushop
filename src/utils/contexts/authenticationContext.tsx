@@ -1,7 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   getAccessToken,
-  getRefreshToken,
+  // getRefreshToken,
   setAccessToken,
   setRefreshToken,
   clearTokens,
@@ -38,6 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const login = (token: string, refreshToken: string, userData: User) => {
+    console.log("Logging in user:", userData);
     setAccessToken(token);
     setRefreshToken(refreshToken);
     localStorage.setItem("user", JSON.stringify(userData));

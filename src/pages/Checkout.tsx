@@ -12,18 +12,11 @@ import {
 import { useState } from "react";
 import { ContentLayout } from "../components/templates/ContentLayout";
 import AppButton from "../components/atoms/AppButton";
-import { productsData } from "../data/productsData";
+import { useCart } from "../utils/contexts/cartContext";
 
-// For demo, checkout contains one product (same as cart)
-const initialCheckout = [
-  {
-    ...productsData.find((p) => p.id === 9),
-    quantity: 1,
-  },
-];
 
 function Checkout() {
-  const [checkout] = useState(initialCheckout);
+  const { cart } = useCart();
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [postal, setPostal] = useState("");
@@ -32,7 +25,7 @@ function Checkout() {
 
   const shippingFee = 0;
   const tax = 10;
-  const subtotal = checkout.reduce(
+  const subtotal = cart.reduce(
     (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1),
     0
   );
@@ -97,10 +90,10 @@ function Checkout() {
               pl={16}
               style={{ minHeight: 300 }}
             >
-              {checkout.map((item) => (
+              {cart.map((item) => (
                 <Group align="center" gap={16} mb={16} key={item.id}>
                   <Image
-                    src={item.image}
+                    src={item.img || item.image}
                     alt={item.title}
                     h={60}
                     w={80}

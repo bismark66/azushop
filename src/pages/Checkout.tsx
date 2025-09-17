@@ -13,15 +13,31 @@ import { useState } from "react";
 import { ContentLayout } from "../components/templates/ContentLayout";
 import AppButton from "../components/atoms/AppButton";
 import { useCart } from "../utils/contexts/cartContext";
-
+import { useCreateOrder, usePayment } from "../http/order.mutation";
 
 function Checkout() {
-  const { cart } = useCart();
+  const { cart, clearCart } = useCart();
+  // const [orderId, setOrderId] = useState<string | null>(null);
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [postal, setPostal] = useState("");
   const [country, setCountry] = useState("");
   const [method, setMethod] = useState("paypal");
+  const {
+    mutate: createOrder,
+    isSuccess: orderSuccess,
+    isError: orderError,
+    error: orderErrorObj,
+    isPending: orderPending,
+  } = useCreateOrder();
+
+  const {
+    mutate: startPayment,
+    isPending: paymentPending,
+    isSuccess: paymentSuccess,
+    isError: paymentError,
+    error: paymentErrorObj,
+  } = usePayment();
 
   const shippingFee = 0;
   const tax = 10;
@@ -30,6 +46,50 @@ function Checkout() {
     0
   );
   const total = subtotal + shippingFee + tax;
+
+  // Prepare order payload
+  const orderItems = cart.map((item) => ({
+    name: item.title,
+    qty: item.quantity,
+    image: item.img || item.image,
+    price: item.price,
+    product: typeof item.id === "string" ? item.id : String(item.id),
+  }));
+
+  const shippingAddress = {
+    address,
+    city,
+    postalCode: postal,
+    country,
+  };
+
+  const handlePlaceOrder = () => {
+    if (!orderItems.length || !address || orderPending || paymentPending)
+      return;
+    createOrder(
+      { orderItems, shippingAddress, paymentMethod: method },
+      {
+        onSuccess: (data) => {
+          const newId = data._id;
+          // setOrderId(newId);
+          startPayment(
+            {
+              orderId: newId,
+              callback_url: "http://localhost:5174/payment/success",
+            },
+            {
+              onSuccess: (paymentData: { paymentUrl: string }) => {
+                clearCart();
+                if (paymentData?.paymentUrl) {
+                  window.location.href = paymentData.paymentUrl;
+                }
+              },
+            }
+          );
+        },
+      }
+    );
+  };
 
   return (
     <ContentLayout hasBanner hasBreadcrumbs bannerText="Checkout">
@@ -147,9 +207,42 @@ function Checkout() {
                 color="blue.7"
                 style={{ minWidth: 280, marginTop: 24 }}
                 fullWidth={true}
+                disabled={
+                  cart.length === 0 ||
+                  !address ||
+                  orderPending ||
+                  paymentPending
+                }
+                onClick={handlePlaceOrder}
+                loading={orderPending || paymentPending}
               >
-                Place order
+                {orderPending
+                  ? "Creating order..."
+                  : paymentPending
+                  ? "Redirecting to payment..."
+                  : "Place & Pay"}
               </AppButton>
+              {orderSuccess && !paymentPending && !paymentSuccess && (
+                <Text color="green" mt={12}>
+                  Order created. Initializing payment...
+                </Text>
+              )}
+              {paymentSuccess && (
+                <Text color="green" mt={12}>
+                  Redirecting to payment...
+                </Text>
+              )}
+              {orderError && (
+                <Text color="red" mt={12}>
+                  Order failed: {orderErrorObj?.message || "Unknown error"}
+                </Text>
+              )}
+              {paymentError && (
+                <Text color="red" mt={12}>
+                  Payment init failed:{" "}
+                  {paymentErrorObj?.message || "Unknown error"}
+                </Text>
+              )}
             </Paper>
           </Grid.Col>
         </Grid>

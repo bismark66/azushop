@@ -13,34 +13,37 @@ import AppTable from "../components/organisms/AppTable";
 import { useEffect } from "react";
 import { getUser } from "../utils/helpers";
 import { IconChevronLeft } from "@tabler/icons-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useUpdateProfile } from "../http/mutations";
+import { useGetUserOrders } from "../http/order.mutation";
+import type { Orders } from "../types/order.types";
 import type { User } from "../types/auth.types";
 type UpdatePayload = Partial<User> & { password?: string };
 
 export default function Profile() {
   const updateProfileMutation = useUpdateProfile();
   const [updateStatus, setUpdateStatus] = useState<string>("");
-  // Mock orders data
-  const orders = [
-    {
-      image: "/src/assets/featured/Macbook.png",
-      id: "6537b4bfb1be49c3f658",
-      date: "2025-03-1",
-      total: "$ 1250.00",
-      paid: "completed",
-      delivered: "Pending",
-    },
-    {
-      image: "/src/assets/featured/Macbook.png",
-      id: "6537b4bfb1be49c3f658",
-      date: "2025-03-1",
-      total: "$ 1250.00",
-      paid: "completed",
-      delivered: "Delivered",
-    },
-    // ...more rows
-  ];
+  const navigate = useNavigate();
+  const { data: userOrders = [], isLoading: ordersLoading, isError: ordersError } = useGetUserOrders();
+
+  const formatDate = (iso?: string) => {
+    if (!iso) return "-";
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString();
+    } catch {
+      return iso;
+    }
+  };
+
+  const orders = (userOrders || []).map((o: Orders) => ({
+    image: o.orderItems?.[0]?.image || "/src/assets/featured/Macbook.png",
+  id: o._id,
+    date: formatDate(o.createdAt),
+    total: `$ ${Number(o.totalPrice || o.itemsPrice || 0).toFixed(2)}`,
+    paid: o.isPaid ? "completed" : "pending",
+    delivered: o.isDelivered ? "Delivered" : "Pending",
+  }));
 
   const columns = [
     {
@@ -97,11 +100,15 @@ export default function Profile() {
     {
       key: "action",
       label: "",
-      render: () => (
-        <Button variant="subtle" color="blue" radius="md" size="xs">
-          <span role="img" aria-label="view">
-            👁️
-          </span>
+      render: (row: Record<string, unknown>) => (
+        <Button
+          variant="subtle"
+          color="blue"
+          radius="md"
+          size="xs"
+          onClick={() => navigate(`/me/orders/${row.id}`)}
+        >
+          <span role="img" aria-label="view">👁️</span>
         </Button>
       ),
       align: "center" as const,
@@ -235,7 +242,16 @@ export default function Profile() {
           </Tabs.Panel>
           <Tabs.Panel value="orders">
             <div style={{ marginTop: 32 }}>
-              <AppTable columns={columns} data={orders} />
+              {ordersLoading && <Text size="sm">Loading orders...</Text>}
+              {ordersError && !ordersLoading && (
+                <Text size="sm" c="red">Failed to load orders.</Text>
+              )}
+              {!ordersLoading && !ordersError && orders.length === 0 && (
+                <Text size="sm" c="dimmed">You have no orders yet.</Text>
+              )}
+              {!ordersLoading && !ordersError && orders.length > 0 && (
+                <AppTable columns={columns} data={orders} />
+              )}
             </div>
           </Tabs.Panel>
         </Tabs>

@@ -24,6 +24,7 @@ export default function AppTable({
   headerBg = "#F9FBFC",
   rowBg = "#fff",
 }: AppTableProps) {
+  console.log("data",data);
   return (
     <Table highlightOnHover>
       <Table.Thead style={{ background: headerBg }}>

@@ -10,6 +10,7 @@ import AdminProducts from "../../pages/AdminProducts";
 import UpdateProduct from "../../pages/UpdateProduct";
 import Category from "../../pages/Category";
 import Profile from "../../pages/Profile";
+import PaymentSuccess from "../../pages/PaymentSuccess";
 
 const routerConfig = [
   {
@@ -94,6 +95,13 @@ const routerConfig = [
     exact: true,
     protected: true,
     breadcrump: "Profile",
+  },
+  {
+    path: "/payment/success",
+    element: <PaymentSuccess />,
+    exact: true,
+    protected: false,
+    breadcrump: "Payment Success",
   },
 ];
 

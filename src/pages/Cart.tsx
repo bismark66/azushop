@@ -9,7 +9,6 @@ import {
   Anchor,
   Center,
 } from "@mantine/core";
-import { useState } from "react";
 import { ContentLayout } from "../components/templates/ContentLayout";
 import AppButton from "../components/atoms/AppButton";
 import { useCart } from "../utils/contexts/cartContext";

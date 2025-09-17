@@ -10,57 +10,61 @@ import {
   Button,
 } from "@mantine/core";
 import { ContentLayout } from "../components/templates/ContentLayout";
-import { productsData } from "../data/productsData";
+import { useGetOrderDetails } from "../http/order.mutation";
+import type { Orders } from "../types/order.types";
+import { useParams, useNavigate } from "react-router";
 
-// Mock order data
-const order = {
-  id: "6537b4b8f1b4e9c5k4568",
-  name: "John Doe",
-  email: "johndoe@mail.com",
-  address: "AK-1129-2299, GH",
-  method: "PayStack",
-  items: [
-    {
-      image: productsData[8].image,
-      product: 'Apple MacBook Pro 2019 | 16"',
-      quantity: 1,
-      unitPrice: 1250,
-      total: 1250,
-    },
-    {
-      image: productsData[1].image,
-      product: "iPhone 15",
-      quantity: 1,
-      unitPrice: 400,
-      total: 400,
-    },
-    {
-      image: productsData[8].image,
-      product: 'Apple MacBook Pro 2019 | 16"',
-      quantity: 1,
-      unitPrice: 1250,
-      total: 1250,
-    },
-    {
-      image: productsData[8].image,
-      product: 'Apple MacBook Pro 2019 | 16"',
-      quantity: 1,
-      unitPrice: 1250,
-      total: 1250,
-    },
-  ],
-  shipping: 0,
-  tax: 20,
-};
+type UserObj = { _id?: string; email?: string; username?: string };
+function isUserObj(u: unknown): u is UserObj {
+  return (
+    typeof u === "object" &&
+    u !== null &&
+    ("email" in u || "username" in u || "_id" in u)
+  );
+}
+
+
+function formatAddress(addr?: Orders["shippingAddress"]) {
+  if (!addr) return "-";
+  return [addr.address, addr.city, addr.postalCode, addr.country].filter(Boolean).join(", ");
+}
+
 
 function OrderDetails() {
-  const itemsTotal = order.items.reduce((sum, item) => sum + item.total, 0);
-  const total = itemsTotal + order.shipping + order.tax;
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { data: order, isLoading, isError } = useGetOrderDetails(id!);
+
+  let itemsTotal = 0;
+  let total = 0;
+  if (order) {
+    itemsTotal = order.orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    total = itemsTotal + (order.shippingPrice || 0) + (order.taxPrice || 0);
+  }
+
+  if (isLoading) {
+    return (
+      <ContentLayout hasBreadcrumbs={false}>
+        <Container size="xl" pt={32} pb={32} p={50}>
+          <Text>Loading order details...</Text>
+        </Container>
+      </ContentLayout>
+    );
+  }
+  if (isError || !order) {
+    return (
+      <ContentLayout hasBreadcrumbs={false}>
+        <Container size="xl" pt={32} pb={32} p={50}>
+          <Text color="red">Failed to load order details.</Text>
+        </Container>
+      </ContentLayout>
+    );
+  }
 
   return (
     <ContentLayout hasBreadcrumbs={false}>
       <Container size="xl" pt={32} pb={32} p={50}>
-        <Text c="blue.7" fw={600} style={{ cursor: "pointer" }} mb={24}>
+        <Text c="blue.7" fw={600} style={{ cursor: "pointer" }} mb={24} onClick={() => navigate(-1)}>
           &lt; Back
         </Text>
         <Container size={"xl"} bg={"#F9FBFC"} p={20}>
@@ -106,7 +110,7 @@ function OrderDetails() {
                         </Text>
                       </Grid.Col>
                     </Grid>
-                    {order.items.map((item, idx) => (
+                    {order.orderItems.map((item, idx) => (
                       <Grid
                         gutter={0}
                         align="center"
@@ -124,20 +128,20 @@ function OrderDetails() {
                             fit="contain"
                             radius="md"
                             bg="#F9FBFC"
-                            alt={item.product}
+                            alt={item.name}
                           />
                         </Grid.Col>
                         <Grid.Col span={4}>
-                          <Text size="sm">{item.product}</Text>
+                          <Text size="sm">{item.name}</Text>
                         </Grid.Col>
                         <Grid.Col span={2}>
-                          <Text size="sm">{item.quantity}</Text>
+                          <Text size="sm">{item.qty}</Text>
                         </Grid.Col>
                         <Grid.Col span={2}>
-                          <Text size="sm">${item.unitPrice.toFixed(2)}</Text>
+                          <Text size="sm">${item.price.toFixed(2)}</Text>
                         </Grid.Col>
                         <Grid.Col span={2}>
-                          <Text size="sm">${item.total.toFixed(2)}</Text>
+                          <Text size="sm">${(item.price * item.qty).toFixed(2)}</Text>
                         </Grid.Col>
                       </Grid>
                     ))}
@@ -155,9 +159,16 @@ function OrderDetails() {
                         color="dimmed"
                         style={{ minWidth: 80 }}
                       >
-                        Order:
+                        Email:
                       </Text>
-                      <Text size="sm">{order.id}</Text>
+                      <Text size="sm">
+                        {(() => {
+                          if (isUserObj(order.user)) {
+                            return order.user.email || order.user.username || order.user._id;
+                          }
+                          return order.user;
+                        })()}
+                      </Text>
                     </Group>
                     <Group mb={8} gap={4}>
                       <Text
@@ -168,18 +179,7 @@ function OrderDetails() {
                       >
                         Name:
                       </Text>
-                      <Text size="sm">{order.name}</Text>
-                    </Group>
-                    <Group mb={8} gap={4}>
-                      <Text
-                        fw={500}
-                        size="sm"
-                        color="dimmed"
-                        style={{ minWidth: 80 }}
-                      >
-                        Email:
-                      </Text>
-                      <Text size="sm">{order.email}</Text>
+                      <Text size="sm">{order.shippingAddress?.address || "-"}</Text>
                     </Group>
                     <Group mb={8} gap={4}>
                       <Text
@@ -190,7 +190,7 @@ function OrderDetails() {
                       >
                         Address:
                       </Text>
-                      <Text size="sm">{order.address}</Text>
+                      <Text size="sm">{formatAddress(order.shippingAddress)}</Text>
                     </Group>
                     <Group mb={8} gap={4}>
                       <Text
@@ -201,7 +201,7 @@ function OrderDetails() {
                       >
                         Method:
                       </Text>
-                      <Text size="sm">{order.method}</Text>
+                      <Text size="sm">{order.paymentMethod}</Text>
                     </Group>
                     <Divider my={16} />
                     <Text fw={600} size="md" mb={8}>
@@ -227,7 +227,7 @@ function OrderDetails() {
                       >
                         Shipping:
                       </Text>
-                      <Text size="sm">${order.shipping.toFixed(2)}</Text>
+                      <Text size="sm">${(order.shippingPrice || 0).toFixed(2)}</Text>
                     </Group>
                     <Group mb={8} gap={4}>
                       <Text
@@ -238,7 +238,7 @@ function OrderDetails() {
                       >
                         Tax:
                       </Text>
-                      <Text size="sm">${order.tax.toFixed(2)}</Text>
+                      <Text size="sm">${(order.taxPrice || 0).toFixed(2)}</Text>
                     </Group>
                     <Group mb={8} gap={4}>
                       <Text

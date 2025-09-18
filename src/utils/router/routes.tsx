@@ -11,8 +11,16 @@ import UpdateProduct from "../../pages/UpdateProduct";
 import Category from "../../pages/Category";
 import Profile from "../../pages/Profile";
 import PaymentSuccess from "../../pages/PaymentSuccess";
+import Users from "../../pages/Users";
 
 const routerConfig = [
+  {
+    path: "/admin/users",
+    element: <Users />,
+    exact: true,
+    protected: true,
+    breadcrump: "Users",
+  },
   {
     path: "/admin/products",
     element: <AdminProducts />,

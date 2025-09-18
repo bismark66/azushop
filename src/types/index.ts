@@ -25,6 +25,10 @@ export interface User {
   contact_number: string;
   location?: string;
   gender?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+  username?: string;
 }
 
 export type changePasswordType = {

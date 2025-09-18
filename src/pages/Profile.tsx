@@ -15,7 +15,10 @@ import { getUser } from "../utils/helpers";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router";
 import { useUpdateProfile } from "../http/mutations";
-import { useGetUserOrders } from "../http/order.mutation";
+import {
+  useGetUserOrders,
+  useGetAllOrdersByAdmin,
+} from "../http/order.mutation";
 import type { Orders } from "../types/order.types";
 import type { User } from "../types/auth.types";
 type UpdatePayload = Partial<User> & { password?: string };
@@ -24,7 +27,18 @@ export default function Profile() {
   const updateProfileMutation = useUpdateProfile();
   const [updateStatus, setUpdateStatus] = useState<string>("");
   const navigate = useNavigate();
-  const { data: userOrders = [], isLoading: ordersLoading, isError: ordersError } = useGetUserOrders();
+  const user = getUser();
+  const isAdmin = user?.isAdmin;
+  const {
+    data: userOrders = [],
+    isLoading: userOrdersLoading,
+    isError: userOrdersError,
+  } = useGetUserOrders();
+  const {
+    data: adminOrders = [],
+    isLoading: adminOrdersLoading,
+    isError: adminOrdersError,
+  } = useGetAllOrdersByAdmin();
 
   const formatDate = (iso?: string) => {
     if (!iso) return "-";
@@ -36,9 +50,10 @@ export default function Profile() {
     }
   };
 
-  const orders = (userOrders || []).map((o: Orders) => ({
+  const ordersRaw = isAdmin ? adminOrders : userOrders;
+  const orders = (ordersRaw || []).map((o: Orders) => ({
     image: o.orderItems?.[0]?.image || "/src/assets/featured/Macbook.png",
-  id: o._id,
+    id: o._id,
     date: formatDate(o.createdAt),
     total: `$ ${Number(o.totalPrice || o.itemsPrice || 0).toFixed(2)}`,
     paid: o.isPaid ? "completed" : "pending",
@@ -108,7 +123,9 @@ export default function Profile() {
           size="xs"
           onClick={() => navigate(`/me/orders/${row.id}`)}
         >
-          <span role="img" aria-label="view">👁️</span>
+          <span role="img" aria-label="view">
+            👁️
+          </span>
         </Button>
       ),
       align: "center" as const,
@@ -242,16 +259,27 @@ export default function Profile() {
           </Tabs.Panel>
           <Tabs.Panel value="orders">
             <div style={{ marginTop: 32 }}>
-              {ordersLoading && <Text size="sm">Loading orders...</Text>}
-              {ordersError && !ordersLoading && (
-                <Text size="sm" c="red">Failed to load orders.</Text>
+              {(isAdmin ? adminOrdersLoading : userOrdersLoading) && (
+                <Text size="sm">Loading orders...</Text>
               )}
-              {!ordersLoading && !ordersError && orders.length === 0 && (
-                <Text size="sm" c="dimmed">You have no orders yet.</Text>
-              )}
-              {!ordersLoading && !ordersError && orders.length > 0 && (
-                <AppTable columns={columns} data={orders} />
-              )}
+              {(isAdmin ? adminOrdersError : userOrdersError) &&
+                !(isAdmin ? adminOrdersLoading : userOrdersLoading) && (
+                  <Text size="sm" c="red">
+                    Failed to load orders.
+                  </Text>
+                )}
+              {!(isAdmin ? adminOrdersLoading : userOrdersLoading) &&
+                !(isAdmin ? adminOrdersError : userOrdersError) &&
+                orders.length === 0 && (
+                  <Text size="sm" c="dimmed">
+                    You have no orders yet.
+                  </Text>
+                )}
+              {!(isAdmin ? adminOrdersLoading : userOrdersLoading) &&
+                !(isAdmin ? adminOrdersError : userOrdersError) &&
+                orders.length > 0 && (
+                  <AppTable columns={columns} data={orders} />
+                )}
             </div>
           </Tabs.Panel>
         </Tabs>

@@ -79,3 +79,17 @@ export function useGetOrderDetails(orderId: string) {
     enabled: !!orderId,
   });
 }
+
+export function useGetAllOrdersByAdmin() {
+  return useQuery({
+    queryKey: ["all-orders"],
+    queryFn: async (): Promise<Orders[]> => {
+      const res = await authorizedFetch(`${API_URL}/orders/`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Fetching all orders failed");
+      return await res.json();
+    },
+  });
+}

@@ -1,5 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { authorizedFetch } from "./queryClient";
+import type { User } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4009/api";
 
@@ -55,7 +56,6 @@ export function useAddProduct() {
   });
 }
 
-
 export function useUpdateProfile() {
   return useMutation({
     mutationFn: async (data: FormData) => {
@@ -64,6 +64,22 @@ export function useUpdateProfile() {
         body: data, // FormData
       });
       if (!res.ok) throw new Error("Update profile failed");
+      return await res.json();
+    },
+  });
+}
+
+export function useGetAllUsers() {
+  return useQuery({
+    queryKey: ["users"],
+    queryFn: async (): Promise<User[]> => {
+      const res = await authorizedFetch(`${API_URL}/users`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      console.log("res", res);
+      if (!res.ok) throw new Error("Fetching users failed");
       return await res.json();
     },
   });

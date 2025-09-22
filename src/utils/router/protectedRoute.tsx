@@ -1,7 +1,10 @@
 import { useAuth } from "../contexts/authenticationContext";
 import { Navigate, useLocation } from "react-router";
 import { LoadingOverlay } from "@mantine/core";
-import { getAccessToken, isTokenExpired } from "../helpers";
+import {
+  getAccessToken,
+  // , isTokenExpired
+} from "../helpers";
 import { useEffect } from "react";
 import { useBreadcrumb } from "../contexts/breadCrumpContext";
 
@@ -16,7 +19,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children: React.ReactNode;
   breadcrumb?: string;
 }) => {
-  const { isAuthenticated, loading, logout, user } = useAuth();
+  const {
+    isAuthenticated,
+    loading,
+    //  logout,
+    user,
+  } = useAuth();
   const location = useLocation();
   const token = getAccessToken();
   const { appendBreadcrumb } = useBreadcrumb();

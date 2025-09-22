@@ -78,10 +78,10 @@ function Checkout() {
               callback_url: "http://localhost:5174/payment/success",
             },
             {
-              onSuccess: (paymentData: { paymentUrl: string }) => {
+              onSuccess: (data) => {
                 clearCart();
-                if (paymentData?.paymentUrl) {
-                  window.location.href = paymentData.paymentUrl;
+                if (data?.access_code) {
+                  window.location.href = data.access_code;
                 }
               },
             }

@@ -48,7 +48,9 @@ export default function AdminProducts() {
         <Group justify="space-between" mb={24}>
           <Tabs
             value={activeTab}
-            onChange={setActiveTab}
+            onChange={(value) => {
+              if (value) setActiveTab(value);
+            }}
             radius="md"
             color="blue"
           >

@@ -96,7 +96,7 @@ export default function AddProductForm() {
   return (
     <form
       onSubmit={form.onSubmit(async (values) => {
-        console.log("Submitting", values);
+        // console.log("Submitting values", values);
         await handleSubmit(values);
       })}
     >

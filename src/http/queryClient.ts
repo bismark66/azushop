@@ -9,11 +9,11 @@ export async function authorizedFetch(
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
-  console.log("authorizedFetch token:", token);
-  console.log(
-    "authorizedFetch headers:",
-    Object.fromEntries(headers.entries())
-  );
+  // console.log("authorizedFetch token:", token);
+  // console.log(
+  //   "authorizedFetch headers:",
+  //   Object.fromEntries(headers.entries())
+  // );
   // Set Content-Type for JSON requests if not set and body is not FormData
   const body = (init as any).body;
   const isFormData =

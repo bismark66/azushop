@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { IconChevronRight } from "@tabler/icons-react";
-import { Box, Collapse, Group, Text, UnstyledButton } from "@mantine/core";
+import { Box, Collapse, Group, UnstyledButton } from "@mantine/core";
 import classes from "../../styles/LinksGroup.module.css";
 
 interface LinksGroupProps {
-  icon?: React.FC<any>;
+  icon?: React.FC<unknown>;
   label: string;
   initiallyOpened?: boolean;
   links?: {
@@ -12,17 +12,9 @@ interface LinksGroupProps {
     value?: string;
     onClick?: () => void;
   }[];
-  selectedBrands?: string[];
-  selectedCategories?: string[];
 }
 
-export function LinksGroup({
-  label,
-  initiallyOpened,
-  links,
-  selectedBrands = [],
-  selectedCategories = [],
-}: LinksGroupProps) {
+export function LinksGroup({ label, initiallyOpened, links }: LinksGroupProps) {
   const hasLinks = Array.isArray(links);
   const [opened, setOpened] = useState(initiallyOpened || false);
 

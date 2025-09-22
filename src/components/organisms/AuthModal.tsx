@@ -40,10 +40,8 @@ export default function AuthModal({ opened, onClose, mode }: AuthModalProps) {
       {
         onSuccess: (data: AuthResponse) => {
           if (data && data.accessToken && data.user) {
-            console.log("---", data);
-            // Map backend user to local User type
             const mappedUser = {
-              _id: data.user._id,
+              _id: String(data.user._id),
               first_name: data.user.username || "",
               last_name: "",
               contact_number: "",
@@ -78,7 +76,7 @@ export default function AuthModal({ opened, onClose, mode }: AuthModalProps) {
         onSuccess: (data: AuthResponse) => {
           if (data && data.accessToken && data.user) {
             const mappedUser = {
-              _id: Number(data.user._id),
+              _id: String(data.user._id),
               first_name: data.user.username || "",
               last_name: "",
               contact_number: "",

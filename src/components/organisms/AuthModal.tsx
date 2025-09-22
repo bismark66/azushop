@@ -34,7 +34,6 @@ export default function AuthModal({ opened, onClose, mode }: AuthModalProps) {
       setError("Please enter your email and password.");
       return;
     }
-    console.log(email, password);
     loginMutation.mutate(
       { email, password },
       {

@@ -29,7 +29,7 @@ export default function UsersAdminPage() {
     {
       key: "action",
       label: "Action",
-      render: (row: Record<string, unknown>) => (
+      render: () => (
         <Group gap={8}>
           <ActionIcon variant="subtle" color="blue" radius="md" size={28}>
             <IconEdit size={18} />

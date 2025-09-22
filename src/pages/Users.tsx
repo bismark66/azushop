@@ -2,14 +2,9 @@ import { Container, Group, Text, Card, ActionIcon } from "@mantine/core";
 import AppTable from "../components/organisms/AppTable";
 import { IconCheck, IconX, IconEdit, IconTrash } from "@tabler/icons-react";
 import { useGetAllUsers } from "../http/mutations";
-// import { useEffect } from "react";
 
 export default function UsersAdminPage() {
   const { data: users, isLoading, isError } = useGetAllUsers();
-
-  // useEffect(() => {
-  //   // console.log(users);
-  // }, [users]);
 
   const columns = [
     { key: "_id", label: "Id" },

@@ -29,6 +29,7 @@ export interface User {
   updatedAt?: string;
   __v?: number;
   username?: string;
+  isAdmin?: boolean;
 }
 
 export type changePasswordType = {

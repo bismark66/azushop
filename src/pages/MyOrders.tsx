@@ -83,7 +83,7 @@ const columns = [
   {
     key: "actions",
     label: "",
-    render: (row: Record<string, unknown>) => (
+    render: () => (
       <Tooltip label="View order details" position="top">
         <ActionIcon color="blue" variant="light" radius="md">
           <IconEye size={20} />
